@@ -44,9 +44,9 @@ export function VoiceOrb({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size with padding for animations
+    // Set canvas size with enough padding for ripples
     const baseSize = assistantType === 'varys' ? 200 : 180;
-    const padding = 60; // Reasonable padding
+    const padding = 120; // More padding for ripple expansion
     const size = baseSize + padding;
     canvas.width = size * 2; // For retina
     canvas.height = size * 2;
@@ -58,51 +58,48 @@ export function VoiceOrb({
     const animate = () => {
       ctx.clearRect(0, 0, size, size);
 
-      // Create gradient based on assistant type
+      // Scale everything based on voice activity when speaking
+      const scaleMultiplier = status === 'speaking' ? (1 + voiceActivity * 0.15) : 1; // Reduced from 0.2
+      const orbRadius = (baseSize / 2 - 10) * scaleMultiplier;
+      
+      // Create gradient
       const gradient = ctx.createRadialGradient(
         size / 2,
         size / 2,
         0,
         size / 2,
         size / 2,
-        size / 2
+        orbRadius
       );
 
       if (assistantType === 'mei') {
         // Teal gradient for Mei
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-        gradient.addColorStop(0.5, 'rgba(79, 179, 185, 0.8)');
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.3, 'rgba(200, 255, 255, 0.9)');
+        gradient.addColorStop(0.7, 'rgba(79, 179, 185, 0.9)');
         gradient.addColorStop(1, 'rgba(79, 179, 185, 1)');
       } else {
         // Purple gradient for Varys
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-        gradient.addColorStop(0.5, 'rgba(107, 70, 193, 0.8)');
-        gradient.addColorStop(1, 'rgba(107, 70, 193, 1)');
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.3, 'rgba(220, 200, 255, 0.9)');
+        gradient.addColorStop(0.7, 'rgba(139, 92, 246, 0.9)');
+        gradient.addColorStop(1, 'rgba(139, 92, 246, 1)');
       }
 
       // Draw main orb
-      const orbRadius = (baseSize / 2) * 0.9;
       ctx.fillStyle = gradient;
       ctx.beginPath();
       ctx.arc(size / 2, size / 2, orbRadius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Add status-specific effects
-      if (status === 'listening' || status === 'speaking') {
-        // Add subtle outer glow that pulses with voice
-        const glowRadius = orbRadius + 10 + (voiceActivity * 15);
-        const glow = ctx.createRadialGradient(
-          size / 2, size / 2, orbRadius,
-          size / 2, size / 2, glowRadius
-        );
-        
-        const color = assistantType === 'mei' ? '79, 179, 185' : '107, 70, 193';
-        glow.addColorStop(0, `rgba(${color}, 0)`);
-        glow.addColorStop(0.5, `rgba(${color}, ${0.2 * voiceActivity})`);
-        glow.addColorStop(1, `rgba(${color}, 0)`);
-        
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, size, size);
+      // Draw outer ring only for Mei
+      if (status === 'speaking' && assistantType === 'mei') {
+        // Ring is attached to orb edge with no gap
+        ctx.strokeStyle = 'rgba(79, 179, 185, 0.3)';
+        ctx.lineWidth = 16 * scaleMultiplier;
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, orbRadius + (8 * scaleMultiplier), 0, Math.PI * 2); // Reduced gap from 10 to 8
+        ctx.stroke();
       }
 
       if (status === 'thinking' && assistantType === 'varys') {

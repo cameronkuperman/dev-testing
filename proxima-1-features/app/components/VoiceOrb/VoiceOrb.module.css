@@ -1,0 +1,195 @@
+.container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0D1117;
+  overflow: visible; /* Changed from hidden to visible */
+  user-select: none;
+}
+
+/* Call info */
+.callInfo {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: white;
+}
+
+.assistantName {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.brandName {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+/* Orb container */
+.orbContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -10vh; /* Slight upward shift for better visual balance */
+  padding: 40px; /* Padding for scale animations */
+}
+
+.orbCanvas {
+  position: relative;
+  z-index: 2;
+  filter: blur(0.5px); /* Subtle softness */
+  /* Remove any potential clipping */
+  overflow: visible !important;
+  border-radius: 0 !important;
+}
+
+.orbGlow {
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.orbGlow.mei {
+  background: radial-gradient(circle, rgba(79, 179, 185, 0.4) 0%, transparent 70%);
+}
+
+.orbGlow.varys {
+  background: radial-gradient(circle, rgba(107, 70, 193, 0.4) 0%, transparent 70%);
+}
+
+/* Controls */
+.controls {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 80px;
+  align-items: center;
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.controlButton:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.controlButton:active {
+  transform: scale(0.98);
+}
+
+.controlButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.controlButton.muted {
+  opacity: 0.5;
+}
+
+.controlButton.endCall {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.controlButton.endCall:hover {
+  background: rgba(255, 107, 107, 0.3);
+}
+
+/* Voice activity indicator */
+.voiceIndicator {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.voiceBar {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transition: transform 0.1s ease;
+  border-radius: 1px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .controls {
+    gap: 40px;
+    bottom: 40px;
+  }
+
+  .controlButton {
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+
+  .controlButton span {
+    display: none; /* Icon only on mobile */
+  }
+
+  .assistantName {
+    font-size: 20px;
+  }
+
+  .voiceIndicator {
+    bottom: 100px;
+    width: 150px;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .orbContainer {
+    animation: none !important;
+  }
+  
+  .controlButton {
+    transition: opacity 0.2s ease;
+  }
+  
+  .voiceBar {
+    transition: none;
+  }
+}

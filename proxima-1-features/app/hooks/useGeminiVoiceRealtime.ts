@@ -141,6 +141,7 @@ export function useGeminiVoice(config: UseGeminiVoiceConfig = {}) {
       
       // Connect WebSocket with assistant type
       const wsUrl = `${wsEndpoint}?assistant=${assistantType}`;
+      console.log('Connecting with assistant:', assistantType, 'URL:', wsUrl);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 

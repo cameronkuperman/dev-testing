@@ -37,13 +37,18 @@ export default function DrMeiPage() {
     }
   }, [isConnected, callStartTime]);
 
-  const handleAssistantSelect = async (assistant: 'mei' | 'varys') => {
+  const handleAssistantSelect = (assistant: 'mei' | 'varys') => {
     setSelectedAssistant(assistant);
     setCallStartTime(Date.now());
-    setTimeout(() => {
-      connect();
-    }, 100);
   };
+  
+  // Connect AFTER assistant is selected and component re-renders
+  useEffect(() => {
+    if (selectedAssistant && !isConnected) {
+      console.log('Connecting to assistant:', selectedAssistant);
+      connect();
+    }
+  }, [selectedAssistant, isConnected, connect]);
 
   const handleEndCall = () => {
     disconnect();

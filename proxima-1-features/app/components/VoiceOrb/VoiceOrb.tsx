@@ -55,12 +55,16 @@ export function VoiceOrb({
     ctx.scale(2, 2); // For retina
 
     let time = 0;
+    let currentScale = 1;
+    let targetScale = 1;
+    
     const animate = () => {
       ctx.clearRect(0, 0, size, size);
 
-      // Scale everything based on voice activity when speaking
-      const scaleMultiplier = status === 'speaking' ? (1 + voiceActivity * 0.15) : 1; // Reduced from 0.2
-      const orbRadius = (baseSize / 2 - 10) * scaleMultiplier;
+      // Smooth scale transitions
+      targetScale = status === 'speaking' ? (1 + voiceActivity * 0.15) : 1;
+      currentScale += (targetScale - currentScale) * 0.1; // Smooth interpolation
+      const orbRadius = (baseSize / 2 - 10) * currentScale;
       
       // Create gradient
       const gradient = ctx.createRadialGradient(
@@ -96,9 +100,9 @@ export function VoiceOrb({
       if (status === 'speaking' && assistantType === 'mei') {
         // Ring is attached to orb edge with no gap
         ctx.strokeStyle = 'rgba(79, 179, 185, 0.3)';
-        ctx.lineWidth = 16 * scaleMultiplier;
+        ctx.lineWidth = 16 * currentScale;
         ctx.beginPath();
-        ctx.arc(size / 2, size / 2, orbRadius + (8 * scaleMultiplier), 0, Math.PI * 2); // Reduced gap from 10 to 8
+        ctx.arc(size / 2, size / 2, orbRadius + (8 * currentScale), 0, Math.PI * 2); // Reduced gap from 10 to 8
         ctx.stroke();
       }
 
@@ -202,11 +206,12 @@ export function VoiceOrb({
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             {isMuted ? (
-              <path d="M12 2C11.2 2 10.5 2.6 10.5 3.3V20.7C10.5 21.4 11.2 22 12 22C12.3 22 12.6 21.9 12.8 21.7L19.4 16.3C20.2 15.7 20.2 14.3 19.4 13.7L12.8 8.3C12.6 8.1 12.3 8 12 8V2Z" 
-                stroke="currentColor" strokeWidth="2"/>
+              <>
+                <path d="M9 9L15 15M15 9L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M5 9H3C2.5 9 2 9.5 2 10V14C2 14.5 2.5 15 3 15H5L9 19V5L5 9Z" fill="currentColor"/>
+              </>
             ) : (
-              <path d="M12 2C11.2 2 10.5 2.6 10.5 3.3V20.7C10.5 21.4 11.2 22 12 22C12.3 22 12.6 21.9 12.8 21.7L19.4 16.3C20.2 15.7 20.2 14.3 19.4 13.7L12.8 8.3C12.6 8.1 12.3 8 12 8C7.6 8 4 11.6 4 16C4 11.6 7.6 8 12 8" 
-                stroke="currentColor" strokeWidth="2"/>
+              <path d="M5 9H3C2.5 9 2 9.5 2 10V14C2 14.5 2.5 15 3 15H5L9 19V5L5 9ZM13 8C14.7 9.3 14.7 14.7 13 16M16 6C19 8 19 16 16 18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
             )}
           </svg>
           <span>{isMuted ? 'Unmute' : 'Mute'}</span>

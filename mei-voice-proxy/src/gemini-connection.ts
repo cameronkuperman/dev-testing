@@ -116,10 +116,19 @@ export class GeminiConnection extends EventEmitter {
         
         // Check for setup complete
         if (response.setupComplete) {
-          logger.info({ connectionId: this.connectionId }, 'Setup complete');
+          logger.info({ 
+            connectionId: this.connectionId,
+            assistantType: this.assistantType 
+          }, 'Setup complete for assistant');
           this.emit('status', 'ready');
           
-          // Don't send initial greeting - wait for user to speak
+          // Send a silent start signal for Varys to prevent double-speech issue
+          if (this.assistantType === 'varys') {
+            setTimeout(() => {
+              this.sendText(''); // Empty message to prime the model
+            }, 100);
+          }
+          
           return;
         }
         
@@ -209,6 +218,11 @@ export class GeminiConnection extends EventEmitter {
   private sendSetupMessage(): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
+    logger.info({ 
+      connectionId: this.connectionId, 
+      assistantType: this.assistantType 
+    }, 'Sending setup message for assistant');
+
     // Build the system instruction with patient context
     const systemPrompt = buildSystemPrompt(mockPatientData);
     
@@ -226,7 +240,7 @@ export class GeminiConnection extends EventEmitter {
           speech_config: {
             voice_config: {
               prebuilt_voice_config: {
-                voice_name: this.assistantType === 'mei' ? 'Aoede' : 'Charon' // Different voices
+                voice_name: this.assistantType === 'mei' ? 'Aoede' : 'Puck' // Puck is male voice for Varys
               }
             }
           }
@@ -307,7 +321,12 @@ You: "Hey Cameron, what's going on?"
       if (error) {
         logger.error({ connectionId: this.connectionId, error }, 'Failed to send setup message');
       } else {
-        logger.info({ connectionId: this.connectionId, model: setupMessage.setup.model }, 'Setup message sent');
+        logger.info({ 
+          connectionId: this.connectionId, 
+          model: setupMessage.setup.model,
+          assistantType: this.assistantType,
+          voice: setupMessage.setup.generation_config.speech_config.voice_config.prebuilt_voice_config.voice_name
+        }, 'Setup message sent');
         // Don't emit ready here - wait for setupComplete response
       }
     });
